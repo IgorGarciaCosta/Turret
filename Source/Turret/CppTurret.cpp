@@ -6,7 +6,7 @@
 #include "TurretAnimInterface.h"
 
 
-
+#define OUT
 // Sets default values
 ACppTurret::ACppTurret()
 {
@@ -36,7 +36,8 @@ ACppTurret::ACppTurret()
 void ACppTurret::BeginPlay()
 {
 	Super::BeginPlay();
-	GetWorldTimerManager().SetTimer(TimerHandle, this, &ACppTurret::ChangeBeamTarget, TargetDelay, true, 3.f);
+	GetWorldTimerManager().SetTimer(ChangeTargetTimerHandle, this, &ACppTurret::ChangeBeamTarget, TargetDelay, true, 1.f);
+	GetWorldTimerManager().SetTimer(TraceTimerHandle, this, &ACppTurret::TraceBeam, .1f, true, .1f);
 }
 
 
@@ -45,6 +46,7 @@ void ACppTurret::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	UpdateLookAtTarget(DeltaTime);
+	//TraceBeam();
 }
 
 void ACppTurret::UpdateLookAtTarget(float DeltaTime)
@@ -81,6 +83,31 @@ void ACppTurret::ChangeBeamTarget()
 void ACppTurret::SetBeamLenght(float Lenght)
 {
 	Beam->SetRelativeScale3D(FVector(Lenght/ 5000, Beam->GetRelativeScale3D().Y, Beam->GetRelativeScale3D().Z));
-	Beam->SetRelativeLocation(FVector(Lenght/125, 0, 0));
+	Beam->SetRelativeLocation(FVector(Lenght/39.3, 0, 0));
+}
+
+void ACppTurret::TraceBeam()
+{
+	FHitResult HitResult;
+	FVector Start = TurretMesh->GetSocketLocation("BeamSocket");
+	FVector End = Start + Beam->GetForwardVector() * BeamLenght;
+
+	FCollisionQueryParams CollQueryParams;
+	CollQueryParams.AddIgnoredActor(this);
+
+	bool bHit = GetWorld()->LineTraceSingleByChannel(
+		OUT HitResult, 
+		Start, 
+		End, 
+		ECollisionChannel::ECC_Camera,
+		CollQueryParams
+	);
+
+	if (bHit) {
+		SetBeamLenght(HitResult.Distance+220);
+	}
+	else {
+		SetBeamLenght(BeamLenght);
+	}
 }
 

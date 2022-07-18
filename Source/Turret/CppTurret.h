@@ -32,7 +32,11 @@ private:
 		int TimerCount = 0;
 
 	UPROPERTY()
-		FTimerHandle TimerHandle;
+		FTimerHandle ChangeTargetTimerHandle;
+
+	UPROPERTY()
+		FTimerHandle TraceTimerHandle;
+
 	FRotator LookAtRotation;
 	FRotator TargetRotation;
 	FRotator RotationDelta;
@@ -54,6 +58,9 @@ private:
 	UFUNCTION(BlueprintCallable)
 		void SetBeamLenght(float Lenght);
 
+	UFUNCTION()
+		void TraceBeam();
+
 
 public:	
 	// Sets default values for this actor's properties
@@ -64,7 +71,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		float BeamLenght = 1000.f;
+		float BeamLenght = 4000.f;
 
 public:	
 	// Called every frame
