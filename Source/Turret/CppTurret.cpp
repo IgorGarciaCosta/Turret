@@ -4,6 +4,7 @@
 #include "CppTurret.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "TurretAnimInterface.h"
+#include "CharacterInterface.h"
 
 
 #define OUT
@@ -45,7 +46,13 @@ void ACppTurret::BeginPlay()
 void ACppTurret::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	UpdateLookAtTarget(DeltaTime);
+	if (Enemy) {
+		FollowEnemy(DeltaTime);
+	}
+	else {
+		UpdateLookAtTarget(DeltaTime);
+	}
+	
 	//TraceBeam();
 }
 
@@ -105,9 +112,39 @@ void ACppTurret::TraceBeam()
 
 	if (bHit) {
 		SetBeamLenght(HitResult.Distance+220);
+		CheckEnemy(HitResult.GetActor());
 	}
 	else {
 		SetBeamLenght(BeamLenght);
+	}
+}
+
+void ACppTurret::CheckEnemy(AActor* HitActor)
+{
+	if (HitActor->Implements<UCharacterInterface>()) {
+		bool bEnemy = ICharacterInterface::Execute_IsEnemy(HitActor);
+		if (bEnemy) {
+			Enemy = HitActor;
+			UE_LOG(LogTemp, Warning, TEXT("EnemyDetected"));
+		}
+	}
+	else {
+		Enemy = nullptr;
+	}
+}
+
+void ACppTurret::FollowEnemy(float DeltaTime)
+{
+	FVector Start = TurretMesh->GetSocketLocation("BeamSocket");
+	FVector End = Enemy->GetActorLocation();
+
+	FRotator RotToEnemy = UKismetMathLibrary::FindLookAtRotation(Start, End);
+
+
+	LookAtRotation = FMath::RInterpTo(LookAtRotation, RotToEnemy, DeltaTime, 10);
+
+	if (TurretMesh->GetAnimInstance()->Implements<UTurretAnimInterface>()) {
+		ITurretAnimInterface::Execute_UpdateLookAtRotation(TurretMesh->GetAnimInstance(), LookAtRotation);
 	}
 }
 

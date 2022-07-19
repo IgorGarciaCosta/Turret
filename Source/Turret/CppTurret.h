@@ -47,7 +47,8 @@ private:
 	UPROPERTY(EditAnywhere)
 		float RotationRateMultiplier = 1.f;
 
-
+	UPROPERTY()
+		AActor* Enemy = nullptr;
 
 	UFUNCTION()
 		void UpdateLookAtTarget(float DeltaTime);
@@ -61,6 +62,11 @@ private:
 	UFUNCTION()
 		void TraceBeam();
 
+	UFUNCTION()
+		void CheckEnemy(AActor* HitActor);
+
+	UFUNCTION()
+		void FollowEnemy(float DeltaTime);
 
 public:	
 	// Sets default values for this actor's properties
