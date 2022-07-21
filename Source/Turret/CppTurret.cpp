@@ -5,6 +5,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "TurretAnimInterface.h"
 #include "CharacterInterface.h"
+#include "particles/ParticleSystemComponent.h"
 
 
 #define OUT
@@ -29,6 +30,10 @@ ACppTurret::ACppTurret()
 
 	FollowTarget = CreateAbstractDefaultSubobject<USceneComponent>("FollowTarget");
 	FollowTarget->SetupAttachment(Root);
+
+	P_MuzzleFlash = CreateAbstractDefaultSubobject<UParticleSystemComponent>("MuzzleFlash");
+	P_MuzzleFlash->SetupAttachment(TurretMesh, TEXT("BeamSocket"));
+	P_MuzzleFlash->SetAutoActivate(false);
 
 	SetBeamLenght(BeamLenght);
 }
@@ -146,5 +151,9 @@ void ACppTurret::FollowEnemy(float DeltaTime)
 	if (TurretMesh->GetAnimInstance()->Implements<UTurretAnimInterface>()) {
 		ITurretAnimInterface::Execute_UpdateLookAtRotation(TurretMesh->GetAnimInstance(), LookAtRotation);
 	}
+}
+
+void ACppTurret::Shoot()
+{
 }
 

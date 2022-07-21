@@ -28,6 +28,11 @@ private:
 	UPROPERTY(VisibleAnywhere)
 		USceneComponent* FollowTarget;
 
+	UPROPERTY(EditDefaultsOnly, Category = Shooting)
+		UParticleSystemComponent* P_MuzzleFlash;
+	UPROPERTY(EditDefaultsOnly, Category = Shooting)
+		USoundBase* ShootSound;
+
 	UPROPERTY()
 		int TimerCount = 0;
 
@@ -67,6 +72,9 @@ private:
 
 	UFUNCTION()
 		void FollowEnemy(float DeltaTime);
+
+	UFUNCTION()
+		void Shoot();
 
 public:	
 	// Sets default values for this actor's properties
