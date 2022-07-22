@@ -42,6 +42,9 @@ private:
 	UPROPERTY()
 		FTimerHandle TraceTimerHandle;
 
+	UPROPERTY()
+		FTimerHandle ShootTimerHandle;
+
 	FRotator LookAtRotation;
 	FRotator TargetRotation;
 	FRotator RotationDelta;

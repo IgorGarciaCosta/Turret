@@ -6,6 +6,7 @@
 #include "TurretAnimInterface.h"
 #include "CharacterInterface.h"
 #include "particles/ParticleSystemComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 
 #define OUT
@@ -116,7 +117,7 @@ void ACppTurret::TraceBeam()
 	);
 
 	if (bHit) {
-		SetBeamLenght(HitResult.Distance+220);
+		SetBeamLenght(HitResult.Distance+230);
 		CheckEnemy(HitResult.GetActor());
 	}
 	else {
@@ -129,11 +130,21 @@ void ACppTurret::CheckEnemy(AActor* HitActor)
 	if (HitActor->Implements<UCharacterInterface>()) {
 		bool bEnemy = ICharacterInterface::Execute_IsEnemy(HitActor);
 		if (bEnemy) {
-			Enemy = HitActor;
-			UE_LOG(LogTemp, Warning, TEXT("EnemyDetected"));
+			if (!Enemy) {
+				Enemy = HitActor;
+				//start shooting
+				GetWorldTimerManager().SetTimer(ShootTimerHandle, this, &ACppTurret::Shoot, .4f, true, .4f);
+				//UE_LOG(LogTemp, Warning, TEXT("EnemyDetected"));
+			}
+			
 		}
 	}
 	else {
+		if (Enemy) {
+			Enemy = nullptr;
+			//stop shooting
+			GetWorldTimerManager().ClearTimer(ShootTimerHandle);
+		}
 		Enemy = nullptr;
 	}
 }
@@ -155,5 +166,7 @@ void ACppTurret::FollowEnemy(float DeltaTime)
 
 void ACppTurret::Shoot()
 {
+	UGameplayStatics::PlaySoundAtLocation(this, ShootSound, P_MuzzleFlash->GetComponentLocation());
+	P_MuzzleFlash->Activate(true);
 }
 
