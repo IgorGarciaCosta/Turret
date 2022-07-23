@@ -168,5 +168,25 @@ void ACppTurret::Shoot()
 {
 	UGameplayStatics::PlaySoundAtLocation(this, ShootSound, P_MuzzleFlash->GetComponentLocation());
 	P_MuzzleFlash->Activate(true);
+
+
+
+	FHitResult HitResult;
+	FVector Start = TurretMesh->GetSocketLocation("BeamSocket");
+	FVector End = Start + Beam->GetForwardVector() * BeamLenght;
+
+	FCollisionQueryParams CollQueryParams;
+	CollQueryParams.AddIgnoredActor(this);
+	bool bHit = GetWorld()->LineTraceSingleByChannel(
+		OUT HitResult,
+		Start,
+		End,
+		ECollisionChannel::ECC_Camera,
+		CollQueryParams
+	);
+	if (bHit) {
+		FPointDamageEvent DamageEvent(10.f, HitResult, Beam->GetForwardVector(), nullptr);
+		HitResult.GetActor()->TakeDamage(10.f, DamageEvent, GetInstigatorController(), this);
+	}
 }
 

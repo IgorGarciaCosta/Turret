@@ -26,6 +26,17 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Input)
 	float TurnRateGamepad;
 
+	virtual float TakeDamage
+	(
+		float DamageAmount,
+		struct FDamageEvent const& DamageEvent,
+		class AController* EventInstigator,
+		AActor* DamageCauser
+	) override;
+
+	UPROPERTY(EditAnywhere)
+		float Health = 100.f;
+
 protected:
 
 	/** Called for forwards/backward input */

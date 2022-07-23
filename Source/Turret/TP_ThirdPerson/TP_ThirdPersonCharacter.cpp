@@ -51,6 +51,21 @@ ATP_ThirdPersonCharacter::ATP_ThirdPersonCharacter()
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 }
 
+float ATP_ThirdPersonCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	float DamageCaused = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	
+	DamageCaused = FMath::Min(Health, DamageCaused);
+	Health -= DamageCaused;
+
+	//UE_LOG(LogTemp, Log, TEXT("DC: %f"), DamangeCaused);
+	UE_LOG(LogTemp, Log, TEXT("H: %f"), Health);
+	if (Health <= 0) {
+		UE_LOG(LogTemp, Warning, TEXT("DIED, BRO"));
+	}
+	return 0.0f;
+}
+
 //////////////////////////////////////////////////////////////////////////
 // Input
 
@@ -103,6 +118,8 @@ void ATP_ThirdPersonCharacter::LookUpAtRate(float Rate)
 	// calculate delta for this frame from the rate information
 	AddControllerPitchInput(Rate * TurnRateGamepad * GetWorld()->GetDeltaSeconds());
 }
+
+
 
 void ATP_ThirdPersonCharacter::MoveForward(float Value)
 {
