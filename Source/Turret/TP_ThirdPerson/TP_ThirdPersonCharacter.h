@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "../CharacterInterface.h"
+#include "NiagaraSystem.h"
 #include "TP_ThirdPersonCharacter.generated.h"
 
 UCLASS(config=Game)
@@ -36,6 +37,9 @@ public:
 
 	UPROPERTY(EditAnywhere)
 		float Health = 100.f;
+
+	UPROPERTY(EditDefaultsOnly)
+		UNiagaraSystem* P_Blood;
 
 protected:
 

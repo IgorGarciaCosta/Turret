@@ -7,6 +7,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraCommon.h"
 
 //////////////////////////////////////////////////////////////////////////
 // ATP_ThirdPersonCharacter
@@ -53,17 +55,38 @@ ATP_ThirdPersonCharacter::ATP_ThirdPersonCharacter()
 
 float ATP_ThirdPersonCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
+	if (Health <= 0) {
+		
+		return 0;
+	}
+
 	float DamageCaused = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 	
 	DamageCaused = FMath::Min(Health, DamageCaused);
 	Health -= DamageCaused;
 
+	if (DamageEvent.IsOfType(FPointDamageEvent::ClassID)) {
+		FVector HitLocation = ((FPointDamageEvent*)&DamageEvent)->HitInfo.Location;
+		FRotator HitRotation = ((FPointDamageEvent*)&DamageEvent)->HitInfo.Normal.Rotation();
+
+		UNiagaraComponent* BloodEffect = UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, P_Blood, HitLocation, HitRotation, FVector(1, 1, 1), true, true, ENCPoolMethod::AutoRelease, true);
+
+	}
+
+
 	//UE_LOG(LogTemp, Log, TEXT("DC: %f"), DamangeCaused);
 	UE_LOG(LogTemp, Log, TEXT("H: %f"), Health);
+
 	if (Health <= 0) {
 		UE_LOG(LogTemp, Warning, TEXT("DIED, BRO"));
+		DisableInput(GetWorld()->GetFirstPlayerController());
+		GetMesh()->SetSimulatePhysics(true);
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	
 	}
-	return 0.0f;
+
+
+	return DamageCaused;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -94,7 +117,7 @@ void ATP_ThirdPersonCharacter::SetupPlayerInputComponent(class UInputComponent* 
 
 bool ATP_ThirdPersonCharacter::IsEnemy_Implementation()
 {
-	return true;
+	return (Health>0);
 }
 
 void ATP_ThirdPersonCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location)
